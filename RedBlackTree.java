@@ -1,3 +1,13 @@
+//Sophie Pyott
+//2/02
+/* public boolean isRedBlack() 
+-- Should return true if the tree meets all five rules for being a RBT. Should check for each rule EXPLICITLY!!! You may not assume any of the rules are necessarily followed (even if the above tree implementation does always generate a RBT). (5 points)
+ public String shortestTruePath()
+-- Should return the keys that make up the shortest true path to a leaf in the tree separated by commas. (5points)
+public int trueHeightDiff()
+-- Should return the height difference between the black height and the actual height of the tree. You will definitely want some helper functions here! ( 5 points)
+*/
+
 //The following is one possible RedBlackTree implementation.
 //Much of this code is from Sven Woltmann's public GitHub repository. Thank you Mr. Woltmann for making your code available for educational purposes.
 
@@ -315,7 +325,7 @@ public class RedBlackTree{
     } else {
       throw new IllegalStateException("Parent is not a child of its grandparent");
     }
-  }
+  } 
 
   private boolean isBlack(Node node) {
     return node == null || node.color == BLACK;
@@ -442,20 +452,101 @@ public class RedBlackTree{
   // To receive full credit you must explicitly check for each property! You may not assume anything based on the above implementation (which does ensure all these rules are followed)
   // you may wish to add some helper functions here.
   public boolean isRedBlack() {
-	  return false;
+
+    if(root == null){
+      return true;
+    }
+    if(root.color != BLACK) return false;
+
+    return checkRules(root) != -1;
+    
+  }
+//black height, -1 if false
+
+//returns -1 if RB  is violated
+  private int checkRules(Node node){
+    if(node == null){
+      return 1; //nil is black
+    }
+ //red = no red children
+    if(node.color == RED){
+      if((node.left != null && node.left.color == RED) || node.right != null && node.right.color == RED){
+        return -1;
+      }
+    }
+ //black height match
+    int leftBlackHeight = checkRules(node.left);
+    int rightBlackHeight = checkRules(node.right);
+
+    if(leftBlackHeight == -1 || rightBlackHeight == -1 || leftBlackHeight != rightBlackHeight){
+      return -1;
+    }
+
+    if(node.color == BLACK){
+      return leftBlackHeight + 1;
+    } else {
+      return leftBlackHeight;
+    }
   }
   
   
   //This should return a string of comma separated keys that represents the shortest height path through the tree.
   //Perhaps this would be easier to do with some helper functions?
   public String shortestTruePath() {
-	  return "";
+	  return shortestPath(root);
+  }
+
+  private String shortestPath (Node node){
+    if(node == null){
+      return "";
+    }
+    String leftPath = shortestPath (node.left);
+    String rightPath = shortestPath (node.right);
+
+    if(leftPath.length()==0 && rightPath.length() ==0){
+      return "" + node.key;
+    }
+    if(leftPath.length() == 0){
+      return node.key + "," + rightPath;
+    }
+    if(rightPath.length() == 0){
+      return node.key + "," + leftPath;
+    }
+    if(leftPath.length() <= rightPath.length()){
+      return node.key + "," + leftPath;
+    } else {
+      return node.key + "," + rightPath;
+    }
   }
   
   //This returns the absolute value of the difference between the real height of the tree and its black height. 
   public int trueHeightDiff(){
-	  return 0;
+
+	  int trueHeight = height(root);
+	  int blackHeight = blackHeight(root);
+	  return Math.abs(trueHeight - blackHeight);
   }
+
+  private int height(Node node){
+    if(node == null){
+      return 0;
+    }
+    return 1 + Math.max(height(node.left), height (node.right));
+  }
+
+  private int blackHeight(Node node){
+    if(node == null){
+      return 1;
+    }
+    int leftBlackHeight = blackHeight (node.left);
+    //left and right black heights are the same
+    if(node.color == BLACK){
+      return leftBlackHeight + 1;
+    } else {
+      return leftBlackHeight;
+    }
+  }
+
 }
 
 
